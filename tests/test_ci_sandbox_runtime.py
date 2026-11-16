@@ -103,7 +103,14 @@ def containers_named(name: str) -> list[str]:
     return [n for n in out.split() if n == name]
 
 
-def run_leg(tmp_path, script, *, network="bridge", timeout_s=600.0, should_stop=None):
+def run_leg(
+    tmp_path,
+    script,
+    *,
+    network=os.environ.get("OCTOPUS_TEST_CONTAINER_NETWORK", "bridge"),
+    timeout_s=600.0,
+    should_stop=None,
+):
     """Runs one leg; returns its result, its output and the leftovers of its own container."""
     src, sha = make_repo(tmp_path, script)
     leg = linux_leg(str(src), sha)
