@@ -1,0 +1,26 @@
+name: ps1 check (throwaway)
+on:
+  push:
+    branches: [test/ps1-check]
+jobs:
+  install:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Default ref (latest release)
+        shell: pwsh
+        run: ./scripts/install.ps1
+      - name: Installed version
+        shell: pwsh
+        run: |
+          $py = Join-Path $env:LOCALAPPDATA "octopus\venv\Scripts\python.exe"
+          if (Get-Command pipx -ErrorAction SilentlyContinue) { pipx list }
+          if (Test-Path $py) { & $py -c "import octopus; print('version', octopus.__version__)" }
+      - name: OCTOPUS_REF still wins
+        shell: pwsh
+        run: |
+          $env:OCTOPUS_REF = "main"
+          ./scripts/install.ps1 | Select-String "installing Octopus"
